@@ -232,6 +232,7 @@ void qSlicerAppMainWindow::on_HelpInterfaceDocumentationAction_triggered()
     }
   QDesktopServices::openUrl(QUrl(url));
 }
+//来自ubuntuf的改动
 
 //---------------------------------------------------------------------------
 void qSlicerAppMainWindow::on_HelpSlicerPublicationsAction_triggered()
