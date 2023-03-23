@@ -102,8 +102,7 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self.updatetimer.start(0.01)
     self.socket_thread = threading.Thread(target=self.creat_socket)
     self.socket_thread.start()
-    #弹出准备工具窗口
-    self.ui.pushButton_15.clicked.connect(self.show_camera_dialog)
+
     self.nmnm = 0
 
     # Set scene in MRML widgets. Make sure that in Qt designer the top-level qMRMLWidget's
@@ -139,6 +138,9 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
       self.pyqt_data_y1.append(-5)
       self.pyqt_data_y2.append(5)
     # self.resizeEvent = ReSizeEvent()#自适应
+    #弹出准备工具窗口
+    self.ui.pushButton_15.clicked.connect(self.show_camera_dialog)
+    self.onState()
     self.mainpageconnect()
     #设置默认页面
     self.ui.centerWidget.setCurrentIndex(0)
@@ -325,6 +327,8 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
 
   def peizhunpage(self):
+    self.ui.femurPoint15Label.hide()
+    self.ui.femurPoint15.hide()
     # self.ui.Switch.connect('clicked(bool)',self.onSwitch)#显示切换
     self.ui.Confirm1.connect('clicked(bool)', self.onConfirm2)#确认
     self.ui.Select1.connect('clicked(bool)', self.onSelect1) #选取标志点
@@ -644,18 +648,18 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
       rotationTransformNode = slicer.util.getNode('DianjiToTracker1')
       try:
         # self.removeObserver(rotationTransformNode,vtk.vtkCommand.ModifiedEvent, self.caculateLowPoint)
-        self.removeObserver(rotationTransformNode,rotationTransformNode.TransformModifiedEvent,self.caculateLowPoint)
+        self.removeObserver(rotationTransformNode,rotationTransformNode.TransformModifiedEvent,self.testtttt)
       except:
         pass
       # self.addObserver(rotationTransformNode,vtk.vtkCommand.ModifiedEvent, self.caculateLowPoint)
-      self.addObserver(rotationTransformNode,rotationTransformNode.TransformModifiedEvent,self.caculateLowPoint)
+      self.addObserver(rotationTransformNode,rotationTransformNode.TransformModifiedEvent,self.testtttt)
 
     if nIndex==6:
       try:
         print("关闭观察者")
         rotationTransformNode = slicer.util.getNode('DianjiToTracker1')
         # self.removeObserver(rotationTransformNode,vtk.vtkCommand.ModifiedEvent, self.caculateLowPoint)
-        self.removeObserver(rotationTransformNode,rotationTransformNode.TransformModifiedEvent,self.caculateLowPoint)
+        self.removeObserver(rotationTransformNode,rotationTransformNode.TransformModifiedEvent,self.testtttt)
       except:
         pass
 
@@ -2021,7 +2025,7 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
       djoperationWidget = slicer.modules.djoperation.widgetRepresentation()
       # djoperationWidget.setParent(self.ui.PopupWidget)
       # layout = qt.QHBoxLayout(self.ui.PopupWidget)
-      layout.addWidget(djoperationWidget)
+      # layout.addWidget(djoperationWidget)
       # self.ui.PopupWidget.setLayout(layout)
       # self.ui.PopupWidget.setVisible(True)
       djoperationWidget.resize(420,800)
@@ -2155,7 +2159,7 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     w.SetProbeTransformFromNodeId(probeToTransformNode.GetID())
 
     StylusNode = slicer.util.getNode('StylusToTracker')
-    KnifeNode = slicer.util.getNode('KnifeToTracker')
+    # KnifeNode = slicer.util.getNode('KnifeToTracker')
     FemurNode = slicer.util.getNode('DianjiToTracker1')
     TibiaNode = slicer.util.getNode('TibiaToTracker')
     self.transform1 = np.array([[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]])
@@ -2163,51 +2167,53 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self.transform3 = self.transform1
     self.transform4 = self.transform1
     self.count = 0
-    self.count1 = 0
-    # 所有观察者调用同一个函数
-    # StylusNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
+    # self.count1 = 0
+    #所有观察者调用同一个函数
+    StylusNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
     # KnifeNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
-    # FemurNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
-    # TibiaNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
+    FemurNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
+    TibiaNode.AddObserver(slicer.vtkMRMLTransformNode.TransformModifiedEvent, self.StateChange)
 
-  # #针刀槽股骨胫骨状态图标(在setup中调用)
-  # def onState(self):
-
-  #   #为按钮设置图标
-  #   self.ui.tool1.setIcon(qt.QIcon(self.iconsPath+'/TwoEye.png'))
-  #   self.ui.tool1.setToolTip('光学指示灯')
-  #   self.ui.tool7.setIcon(qt.QIcon(self.iconsPath+'/navigation.png'))
-  #   self.ui.tool7.setToolTip('机械臂指示灯')
-  #   self.ui.tool2.setIcon(qt.QIcon(self.iconsPath+'/needle.png'))
-  #   self.ui.tool2.setToolTip('针指示灯')
-  #   self.ui.tool3.setIcon(qt.QIcon(self.iconsPath+'/knife.png'))
-  #   self.ui.tool3.setToolTip('刀槽指示灯')
-  #   self.ui.tool4.setIcon(qt.QIcon(self.iconsPath+'/femur.png'))
-  #   self.ui.tool4.setToolTip('股骨指示灯')
-  #   self.ui.tool5.setIcon(qt.QIcon(self.iconsPath+'/tibia.png'))
-  #   self.ui.tool5.setToolTip('胫骨指示灯')   
-  #   self.ui.tool6.setIcon(qt.QIcon(self.iconsPath+'/Plane.png'))
-  #   self.ui.tool6.setToolTip('截骨面指示灯')  
+  #针刀槽股骨胫骨状态图标(在setup中调用)
+  def onState(self):
+    #为按钮设置图标
+    # self.ui.tool1.setIcon(qt.QIcon(self.iconsPath+'/TwoEye.png'))
+    # self.ui.tool1.setToolTip('光学指示灯')
+    # self.ui.tool7.setIcon(qt.QIcon(self.iconsPath+'/navigation.png'))
+    # self.ui.tool7.setToolTip('机械臂指示灯')
+    self.ui.tool2.setIcon(qt.QIcon(self.iconsPath+'/needle.png'))
+    self.ui.tool2.setIconSize(qt.QSize(49, 49))
+    self.ui.tool2.setToolTip('针指示灯')
+    # self.ui.tool3.setIcon(qt.QIcon(self.iconsPath+'/knife.png'))
+    # self.ui.tool3.setToolTip('刀槽指示灯')
+    self.ui.tool4.setIcon(qt.QIcon(self.iconsPath+'/femur.png'))
+    self.ui.tool4.setIconSize(qt.QSize(49, 49))
+    self.ui.tool4.setToolTip('股骨指示灯')
+    self.ui.tool5.setIcon(qt.QIcon(self.iconsPath+'/tibia.png'))
+    self.ui.tool5.setIconSize(qt.QSize(49, 49))
+    self.ui.tool5.setToolTip('胫骨指示灯')   
+    # self.ui.tool6.setIcon(qt.QIcon(self.iconsPath+'/Plane.png'))
+    # self.ui.tool6.setToolTip('截骨面指示灯')  
    
-  #   self.ui.tool1.setEnabled(False)
-  #   self.ui.tool2.setEnabled(False)
-  #   self.ui.tool3.setEnabled(False)
-  #   self.ui.tool4.setEnabled(False)
-  #   self.ui.tool5.setEnabled(False)
-  #   self.ui.tool6.setEnabled(False)
-  #   self.ui.tool7.setEnabled(False)
+    # self.ui.tool1.setEnabled(False)
+    self.ui.tool2.setEnabled(False)
+    # self.ui.tool3.setEnabled(False)
+    self.ui.tool4.setEnabled(False)
+    self.ui.tool5.setEnabled(False)
+    # self.ui.tool6.setEnabled(False)
+    # self.ui.tool7.setEnabled(False)
 
   def StateChange(self,transformNode,unusedArg2=None, unusedArg3=None):
     self.count += 1
-    if self.count%50==0:
-      self.count1 += 1
+    if self.count%10==0:
+      # self.count1 += 1
       self.count=1
       StylusNode=slicer.util.getNode('StylusToTracker')
-      KnifeNode = slicer.util.getNode('KnifeToTracker')
+      # KnifeNode = slicer.util.getNode('KnifeToTracker')
       FemurNode = slicer.util.getNode('DianjiToTracker1')
       TibiaNode = slicer.util.getNode('TibiaToTracker')
       transform1 = slicer.util.arrayFromTransformMatrix(StylusNode)
-      transform2 = slicer.util.arrayFromTransformMatrix(KnifeNode)
+      # transform2 = slicer.util.arrayFromTransformMatrix(KnifeNode)
       transform3 = slicer.util.arrayFromTransformMatrix(FemurNode)
       transform4 = slicer.util.arrayFromTransformMatrix(TibiaNode)
       if (transform1 == self.transform1).all():
@@ -2216,11 +2222,11 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         self.ui.tool2.setEnabled(True)
         self.transform1 = transform1
 
-      if (transform2 == self.transform2).all():
-        self.ui.tool3.setEnabled(False)        
-      else:  
-        self.ui.tool3.setEnabled(True)
-        self.transform2 = transform2
+      # if (transform2 == self.transform2).all():
+      #   self.ui.tool3.setEnabled(False)        
+      # else:  
+      #   self.ui.tool3.setEnabled(True)
+      #   self.transform2 = transform2
       if (transform3 == self.transform3).all():
         self.ui.tool4.setEnabled(False)
       else:
@@ -2232,22 +2238,22 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
       else:       
         self.ui.tool5.setEnabled(True)
         self.transform4 = transform4
-      #向小屏幕发送外翻角屈膝角以及工具状态
-      s1 = 1
-      s2 = 0
-      try:
-        s3 = round(self.currentY,2)  # 外翻
-        s4 = round(self.currentX,2)   # 屈膝
-      except:
-        s3 = 0  # 外翻
-        s4 = 0  # 屈膝
+      # #向小屏幕发送外翻角屈膝角以及工具状态
+      # s1 = 1
+      # s2 = 0
+      # try:
+      #   s3 = round(self.currentY,2)  # 外翻
+      #   s4 = round(self.currentX,2)   # 屈膝
+      # except:
+      #   s3 = 0  # 外翻
+      #   s4 = 0  # 屈膝
 
-      s5 = 0
-      s6 = 0
-      s7 = 0
-      s8 = f'{int(self.ui.tool2.enabled)}' + f'{int(self.ui.tool3.enabled)}' + f'{int(self.ui.tool4.enabled)}' + f'{int(self.ui.tool5.enabled)}' + f'{int(self.ui.tool6.enabled)}'+'@\n'
-      self.client.send(f'{s1},{s2},{s3},{s4},{s5},{s6},{s7},{s8}'.encode())
-      #print('已发送', f'{s1},{s2},{s3},{s4},{s5},{s6},{s7},{s8}')
+      # s5 = 0
+      # s6 = 0
+      # s7 = 0
+      # s8 = f'{int(self.ui.tool2.enabled)}' + f'{int(self.ui.tool3.enabled)}' + f'{int(self.ui.tool4.enabled)}' + f'{int(self.ui.tool5.enabled)}' + f'{int(self.ui.tool6.enabled)}'+'@\n'
+      # self.client.send(f'{s1},{s2},{s3},{s4},{s5},{s6},{s7},{s8}'.encode())
+      # #print('已发送', f'{s1},{s2},{s3},{s4},{s5},{s6},{s7},{s8}')
 
  
   def OperationTechnology(self):
@@ -2950,12 +2956,10 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
   #单选结束确认函数_gugu
   def onConfirm1_femur(self):
     ToNode=slicer.util.getNode("To")
-    
     #将选择的点按名称加入场景中
     self.FemurPoints = ['开髓点','内侧凹点','外侧凸点','内侧远端','外侧远端','内侧后髁','外侧后髁','外侧皮质高点','A点']
     self.TibiaPoints = ['胫骨隆凸','胫骨结节','外侧高点','内侧高点']
     Points = slicer.util.arrayFromMarkupsControlPoints(ToNode)
-    np.save("d:/femur_1.npy",Points)
 
     Transform_tmp = slicer.util.getNode('DianjiToTracker1')
     for i in range(len(Points)):
@@ -2980,8 +2984,6 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     transformNode = slicer.util.getNode('DianjiToTracker1')
     ToNode.RemoveAllControlPoints()
     ToNode.SetAndObserveTransformNodeID(transformNode.GetID())
-    
-
 
   #单选结束确认函数_jinggu
   def onConfirm1_tibia(self):
@@ -2990,7 +2992,6 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     #将选择的点按名称加入场景中
     self.TibiaPoints =  ['胫骨隆凸','胫骨结节','外侧高点','内侧高点']
     Points = slicer.util.arrayFromMarkupsControlPoints(ToNode)
-    np.save("d:/tibia_1.npy",Points)
     Transform_tmp = slicer.util.getNode('TibiaToTracker')
     point1 = [Points[0],Points[5],Points[4],Points[3]]
     tibia_index=[0,5,4,3,2,1]
@@ -3632,8 +3633,7 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     else:
       for j in range(5):
         np.append(Topoints, self.keypoints, axis=0)
-      mesh=self.keypoints.copy()
-      self.TibiaNihe(mesh)
+      self.TibiaNihe(Topoints)
     
 
     if self.ui.centerWidget.currentIndex == 3 :
@@ -4065,7 +4065,6 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
   # 计算当前最低值及角度
   def caculateLowPoint(self, unusedArg1=None, unusedArg2=None, unusedArg3=None):
-    print("计算当前最低值及角度")
     #TibiaJGM = self.GetTransPoint('胫骨截骨面')
     ras1, ras2, ras3, ras4 = [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]
     ras5, ras6 = [0, 0, 0], [0, 0, 0]
@@ -4076,24 +4075,28 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     slicer.util.getNode('内侧后髁').GetNthControlPointPositionWorld(0, ras5)
     slicer.util.getNode('外侧后髁').GetNthControlPointPositionWorld(0, ras6)
 
+    
     Femur_ZAxis_Z = self.caculateTouYingNorml('Femur_ZAxis', 'Tibia_YZPlane')
     Tibia_ZAxis = self.GetNorlm('Tibia_ZAxis')
     #quxiAngle = self.angle(Femur_ZAxis_Z, Tibia_ZAxis)
     quxiAngle=self.Angle(Femur_ZAxis_Z, Tibia_ZAxis)
-    
+  
 
     Tibia_XAxis = self.GetNorlm('Tibia_XAxis')
     Tibia_YAxis = self.GetNorlm('Tibia_YAxis')
+    Femur_XAxis = self.GetNorlm('Femur_XAxis')
     Femur_ZAxis = self.GetNorlm('Femur_ZAxis')
     ifzf1=np.dot(Tibia_YAxis,Femur_ZAxis)
-    # print("ifzf1",ifzf1)
+    print("ifzf1",ifzf1)
     if (ifzf1<0):
       quxiAngle=-quxiAngle
 
-    Femur_XAxis_Z = self.caculateTouYingNorml('Femur_ZAxis', 'Tibia_YZPlane')
-    waifanAngle=float(self.angle(Femur_XAxis_Z, Femur_ZAxis))
-    if(np.dot(Tibia_XAxis,Femur_ZAxis)>0):
+    Femur_XAxis_Z = self.caculateTouYingNorml('Femur_XAxis', 'Tibia_XYPlane')
+    waifanAngle=float(self.angle(Femur_XAxis_Z, Femur_XAxis))
+    if(np.dot(Tibia_ZAxis,Femur_XAxis)>0):
       waifanAngle=-waifanAngle
+
+
 
 
 
@@ -4183,11 +4186,9 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     if(89<self.currentX<91):#屈膝时计算屈膝间隙
       quxi_neicejianxi=np.sqrt(np.dot(np.array(ras1)-ras5,np.array(ras1)-ras5))
-      print("间隙:",quxi_neicejianxi)
       if quxi_neicejianxi > 15:
         quxi_neicejianxi = 15
       quxi_waicejianxi=np.sqrt(np.dot(np.array(ras2)-ras6,np.array(ras2)-ras6))
-      print("间隙:",quxi_waicejianxi)
       if quxi_waicejianxi > 15:
         quxi_waicejianxi = 15
       quxi_neicejianxi = round(quxi_neicejianxi,1)
@@ -4225,17 +4226,19 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     Tibia_ZAxis = self.GetNorlm('Tibia_ZAxis1')
     #quxiAngle = self.angle(Femur_ZAxis_Z, Tibia_ZAxis)
     quxiAngle=self.Angle(Femur_ZAxis_Z, Tibia_ZAxis)
-        
+
     Tibia_XAxis = self.GetNorlm('Tibia_XAxis1')
     Tibia_YAxis = self.GetNorlm('Tibia_YAxis1')
+    Femur_XAxis = self.GetNorlm('Femur_XAxis1')
     Femur_ZAxis = self.GetNorlm('Femur_ZAxis1')
     ifzf1=np.dot(Tibia_YAxis,Femur_ZAxis)
     print("ifzf1",ifzf1)
     if (ifzf1<0):
       quxiAngle=-quxiAngle
-    Femur_XAxis_Z = self.caculateTouYingNorml('Femur_ZAxis1', 'Tibia_YZPlane1')
-    waifanAngle=float(self.angle(Femur_XAxis_Z, Femur_ZAxis))
-    if(np.dot(Tibia_XAxis,Femur_ZAxis)>0):
+
+    Femur_XAxis_Z = self.caculateTouYingNorml('Femur_XAxis1', 'Tibia_XYPlane1')
+    waifanAngle=float(self.angle(Femur_XAxis_Z, Femur_XAxis))
+    if(np.dot(Tibia_ZAxis,Femur_XAxis)>0):
       waifanAngle=-waifanAngle
 
     return quxiAngle,waifanAngle
@@ -5982,6 +5985,13 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     f.SetAndObserveTransformNodeID(Femur_ZAxis.GetID())
     f.SetDisplayVisibility(False)
 
+    f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Femur_XAxis')
+    f.AddControlPoint(o)
+    f.AddControlPoint(x)
+    Femur_ZAxis = slicer.util.getNode('变换_1')
+    f.SetAndObserveTransformNodeID(Femur_ZAxis.GetID())
+    f.SetDisplayVisibility(False)
+
     f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Tibia_ZAxis')
     f.AddControlPoint(o)
     f.AddControlPoint(z)
@@ -6003,15 +6013,21 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     f.SetAndObserveTransformNodeID(Tibia_YAxis.GetID())
     f.SetDisplayVisibility(False)
 
+    f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Tibia_XYPlane')
+    f.AddControlPoint(o)
+    f.AddControlPoint(x)
+    f.AddControlPoint(y)
+    Tibia_XYPlane = slicer.util.getNode('变换_4')
+    f.SetAndObserveTransformNodeID(Tibia_XYPlane.GetID())
+    f.SetDisplayVisibility(False)
+
     f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Tibia_YZPlane')
     f.AddControlPoint(o)
     f.AddControlPoint(y)
     f.AddControlPoint(z)
-    Tibia_YZPlane = slicer.util.getNode('变换_4')
-    f.SetAndObserveTransformNodeID(Tibia_YZPlane.GetID())
+    Tibia_XYPlane = slicer.util.getNode('变换_4')
+    f.SetAndObserveTransformNodeID(Tibia_XYPlane.GetID())
     f.SetDisplayVisibility(False)
-
-
 
 
 
@@ -7518,7 +7534,7 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
         f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Femur_XAxis1')
         f.AddControlPoint(o)
-        f.AddControlPoint(z)
+        f.AddControlPoint(x)
         Femur_ZAxis = slicer.util.getNode('变换_股骨调整')
         f.SetAndObserveTransformNodeID(Femur_ZAxis.GetID())
         f.SetDisplayVisibility(False)
@@ -7544,6 +7560,15 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         f.SetAndObserveTransformNodeID(Tibia_YAxis.GetID())
         f.SetDisplayVisibility(False)
 
+        f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Tibia_XYPlane1')
+        f.AddControlPoint(o)
+        f.AddControlPoint(x)
+        f.AddControlPoint(y)
+        Tibia_XYPlane = slicer.util.getNode('变换_胫骨调整')
+        f.SetAndObserveTransformNodeID(Tibia_XYPlane.GetID())
+        f.SetDisplayVisibility(False)
+
+
         f = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'Tibia_YZPlane1')
         f.AddControlPoint(o)
         f.AddControlPoint(y)
@@ -7551,7 +7576,6 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         Tibia_YZPlane = slicer.util.getNode('变换_胫骨调整')
         f.SetAndObserveTransformNodeID(Tibia_YZPlane.GetID())
         f.SetDisplayVisibility(False)
-
 
     # self.TCamera1(self.view1)
     # self.TCamera2(self.view2)
@@ -10119,7 +10143,7 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   def creat_socket(self):
-    HOST = '192.168.3.12' # 服务端 IP 地址
+    HOST = '192.168.3.31' # 服务端 IP 地址
     PORT = 8898        # 服务端端口号
     # 创建一个 TCP 套接字
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -10198,7 +10222,6 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
             trans = np.array(trans).reshape(4,4) #转换矩阵
             for p in range(3):
               trans[p][3] = trans[p][3] * 10
-            trans[0][3] = trans[0][3] * -1
             # print(trans)
             # self.mysingle.handleData_single.emit(name,trans)
             self.handleData(name,trans)
@@ -10233,11 +10256,10 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
               point_str = data[point_start:].split(',')
               if len(point_str) < 3:
                 continue
-              point = [float(x) for x in point_str]#选点坐标
-              point[0] = point[0]*-1
-              # for xx in range(3):
-              #   if point[xx] > 0:
-              #     point[xx] = point[xx] * -1
+              point = [float(x)*-1 for x in point_str]#选点坐标
+              for xx in range(3):
+                if point[xx] > 0:
+                  point[xx] = point[xx] * -1
               print("股骨:",point)
               self.vrPoint=point
               self.VRselect()
@@ -10252,11 +10274,10 @@ class NoImageWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
               point_str = data[point_start:].split(',')
               if len(point_str) < 3:
                 continue
-              point = [float(x) for x in point_str]#选点坐标
-              point[0] = point[0]*-1
-              # for xx in range(3):
-              #   if point[xx] > 0:
-              #     point[xx] = point[xx] * -1
+              point = [float(x)*-1 for x in point_str]#选点坐标
+              for xx in range(3):
+                if point[xx] > 0:
+                  point[xx] = point[xx] * -1
               print("胫骨:",point)
               self.vrPoint=point
               self.VRselect()
